@@ -1,0 +1,26 @@
+# Known templates — canonical source to diff against
+#
+# Format: <repo-url> <ref> <path-prefix-in-repo> — one per line, space-separated.
+# check_canonical.sh clones each once (cached under ~/.cache/onchain-recon/repos)
+# and diffs by matching filename. Replace mutable branch names with the target's
+# locked tag/commit whenever the result is used as audit evidence. Add repos as
+# needed; comparison only prioritizes source-diff work and never decides scope.
+
+https://github.com/Uniswap/v4-core main src/
+https://github.com/Uniswap/v4-periphery main src/
+https://github.com/Uniswap/liquidity-launcher main src/
+https://github.com/OpenZeppelin/openzeppelin-contracts master contracts/
+https://github.com/Vectorized/solady main src/
+https://github.com/transmissions11/solmate main src/
+https://github.com/Uniswap/permit2 main src/
+
+# Notes:
+# - Filename-only matching means two different repos with a same-named file
+#   (rare, but possible - e.g. a generic "Math.sol") could false-match. If a
+#   CANONICAL result looks suspicious, open the diff by hand once - this
+#   heuristic is meant to eliminate 90% of skim-reading, not to be the final
+#   word on 100% of files.
+# - CUSTOM_OR_MODIFIED does not mean malicious or low quality; it means inspect
+#   the diff. EXACT_UPSTREAM does not mean out of scope; still inspect control,
+#   initialization, configuration, assets, callbacks, and integration behavior.
+# - The script reports the cached upstream commit. Record it in recon evidence.

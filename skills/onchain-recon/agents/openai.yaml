@@ -1,0 +1,4 @@
+interface:
+  display_name: "On-chain Recon"
+  short_description: "Batch deployed-contract mapping evidence"
+  default_prompt: "Use $onchain-recon to batch read-only deployment and runtime evidence for this contract map."

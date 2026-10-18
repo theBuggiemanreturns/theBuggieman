@@ -1,0 +1,4 @@
+interface:
+  display_name: "Contract Mapping"
+  short_description: "Map source, runtime wiring, control, and scope"
+  default_prompt: "Use $contract-mapping to produce a validated protocol-map.md with runtime dependencies, controllers, and scope evidence."

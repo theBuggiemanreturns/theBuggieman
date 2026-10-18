@@ -1,0 +1,4 @@
+interface:
+  display_name: "Smart Contract Auditing"
+  short_description: "Prove and refute mapped protocol findings"
+  default_prompt: "Use $smart-contract-auditing to audit this validated protocol map, prove and refute candidates, and prepare the cross-reference handoff."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vulnerability Cross-reference"
+  short_description: "Cross-reference audit findings and gaps"
+  default_prompt: "Use $smart-contract-vuln-crossref to cross-reference this completed audit and loop missed candidates back for proof."

@@ -1,0 +1,1515 @@
+{
+  "_meta": {
+    "purpose": "Cross-reference index of recurring smart-contract vulnerability patterns, built from ~900 findings across 87 public security reviews (Sherlock, Code4rena, Cantina, Immunefi, Three Sigma, Blackthorn, 0xSimao private audits) plus 4 detailed launchpad disclosures. Extended with a second corpus: a historical named-incident library (Wormhole, Mango Markets, Parity, Alchemix, VeChain, ThunderNFT, pump.fun, ZeroLend) and an EVM+Solana token/rug-pull detection library.",
+    "how_to_use": "Match a candidate finding's keywords/code-shape against `keywords`. Ties or multiple hits -> read every matched reference file, don't guess from the id alone.",
+    "last_built": "2026-08-11",
+    "source_counts": {
+      "review_reports": 87,
+      "individual_findings_reviewed": "~900",
+      "standalone_disclosures": 4,
+      "named_historical_incidents": 8,
+      "token_rugpull_bug_classes": 8
+    },
+    "stat_caveat": "Frequency/percentage claims in files 15-19 (e.g. '28% of Criticals', '$953M lost in 2024') are attributed to the source material they were extracted from, not independently verified by this KB's maintainers. Treat them as a claimed prior, not a fact."
+  },
+  "categories": [
+    {
+      "file": "01-amm-pool-graduation-squatting.md",
+      "title": "AMM pool creation / graduation / migration squatting",
+      "patterns": [
+        {
+          "id": "AMM-01",
+          "name": "Permissionless pool pre-initialization sets attacker price",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "createAndInitializePoolIfNecessary",
+            "createPool",
+            "initialize price",
+            "pool squat",
+            "graduate",
+            "migrate liquidity",
+            "sqrtPriceX96",
+            "seed pool",
+            "pre-create pool"
+          ]
+        },
+        {
+          "id": "AMM-02",
+          "name": "Zero-slippage LP mint (amount0Min/amount1Min = 0)",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "amount0Min",
+            "amount1Min",
+            "mint LP",
+            "no slippage",
+            "position manager mint"
+          ]
+        },
+        {
+          "id": "AMM-03",
+          "name": "Balance-based first-mint donation/inflation on new pools",
+          "severity_seen": [
+            "Medium",
+            "informational-if-mitigated"
+          ],
+          "keywords": [
+            "sqrt(balance0*balance1)",
+            "MINIMUM_LIQUIDITY",
+            "first liquidity",
+            "donation attack",
+            "v2 mint"
+          ]
+        },
+        {
+          "id": "AMM-04",
+          "name": "Predictable pre-deploy address enables squat/DoS even after price checks",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "deterministic address",
+            "CREATE2",
+            "predictTokenAddress",
+            "salt",
+            "vanity address",
+            "front-run deployment"
+          ]
+        },
+        {
+          "id": "AMM-05",
+          "name": "Single-sided / instant listing trusts existing pool tick without validation",
+          "severity_seen": [
+            "High"
+          ],
+          "keywords": [
+            "single-sided liquidity",
+            "slot0",
+            "tick range from existing pool",
+            "instant listing"
+          ]
+        },
+        {
+          "id": "AMM-06",
+          "name": "New-pool single-sided position minted across full unclaimed tick range",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "single sided position",
+            "current tick to max tick",
+            "uniswap v4 pool init",
+            "setupUniswapPool"
+          ]
+        },
+        {
+          "id": "AMM-07",
+          "name": "Token transfer-lock defeated because pool init needs no token balance",
+          "severity_seen": [
+            "design-note"
+          ],
+          "keywords": [
+            "transfer lock",
+            "isUnlocked",
+            "pre-graduation lock",
+            "token balance not required to squat"
+          ]
+        },
+        {
+          "id": "AMM-08",
+          "name": "Migrator/locker has no rescue or re-migration path once funds are stuck/mispriced",
+          "severity_seen": [
+            "High",
+            "design-note"
+          ],
+          "keywords": [
+            "no withdraw function",
+            "stuck funds",
+            "no rescue",
+            "no sweep"
+          ]
+        },
+        {
+          "id": "AMM-09",
+          "name": "Privileged authority (mint/freeze/update) retained past the graduation/finalization event",
+          "severity_seen": [
+            "Critical",
+            "informational-if-checked"
+          ],
+          "keywords": [
+            "mint authority retained",
+            "post-graduation mint",
+            "authority not nulled after graduation",
+            "bonding curve graduation authority",
+            "retained privileged role after finalization"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "02-oracle-price-feeds.md",
+      "title": "Oracle & price-feed manipulation / staleness",
+      "patterns": [
+        {
+          "id": "ORC-01",
+          "name": "Instantaneous convertToAssets()/vault-rate used directly as price",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "convertToAssets",
+            "donation attack",
+            "vault rate manipulated",
+            "sDAI",
+            "share price oracle"
+          ]
+        },
+        {
+          "id": "ORC-02",
+          "name": "Fallback oracle path returns wrong denomination/asset",
+          "severity_seen": [
+            "High"
+          ],
+          "keywords": [
+            "fallback oracle",
+            "wrong denomination",
+            "USD instead of EUR",
+            "canonical feed switch"
+          ]
+        },
+        {
+          "id": "ORC-03",
+          "name": "Future/negative timestamp underflows staleness check",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "future timestamp",
+            "block.timestamp - updatedAt",
+            "underflow staleness",
+            "API3",
+            "heartbeat check"
+          ]
+        },
+        {
+          "id": "ORC-04",
+          "name": "Unbounded gas forwarded to external oracle call enables catch-block griefing",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "gasleft()",
+            "try/catch oracle",
+            "forward gas",
+            "revert on purpose",
+            "temporary shutdown"
+          ]
+        },
+        {
+          "id": "ORC-05",
+          "name": "lastGoodPrice / cached price never initialized in constructor",
+          "severity_seen": [
+            "Low"
+          ],
+          "keywords": [
+            "lastGoodPrice",
+            "constructor missing fetchPrice",
+            "uninitialized cache"
+          ]
+        },
+        {
+          "id": "ORC-06",
+          "name": "Spot tick/price used where TWAP was intended (or worst-of logic inverted)",
+          "severity_seen": [
+            "High",
+            "Critical"
+          ],
+          "keywords": [
+            "slot0",
+            "spot price manipulation",
+            "TWAP not used",
+            "worst of spot and twap",
+            "instantaneous tick"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "03-erc4626-vaults.md",
+      "title": "ERC4626 / vault share accounting",
+      "patterns": [
+        {
+          "id": "VLT-01",
+          "name": "First-depositor / inflation attack on low totalSupply",
+          "severity_seen": [
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "inflation attack",
+            "first depositor",
+            "donate underlying",
+            "shares = 0",
+            "ERC4626 inflation"
+          ]
+        },
+        {
+          "id": "VLT-02",
+          "name": "withdraw()/redeem() missing slippage parameter (ERC4626 spec gap)",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "no slippage on withdraw",
+            "redeem slippage",
+            "ERC4626 spec"
+          ]
+        },
+        {
+          "id": "VLT-03",
+          "name": "maxDeposit/maxMint/maxRedeem not implemented or ignores real caps",
+          "severity_seen": [
+            "Low",
+            "Medium"
+          ],
+          "keywords": [
+            "maxDeposit",
+            "maxRedeem",
+            "maxMint",
+            "deposit cap not reflected"
+          ]
+        },
+        {
+          "id": "VLT-04",
+          "name": "totalAssets() counts balances that are not actually redeemable/sweepable",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "totalAssets overstated",
+            "stuck balance counted",
+            "sweep aToken",
+            "non-redeemable asset in totalAssets"
+          ]
+        },
+        {
+          "id": "VLT-05",
+          "name": "Rounding in withdraw/deposit favors the user instead of the protocol",
+          "severity_seen": [
+            "Medium",
+            "Low"
+          ],
+          "keywords": [
+            "rounds in user favor",
+            "round down should round up",
+            "fee rounding direction"
+          ]
+        },
+        {
+          "id": "VLT-06",
+          "name": "Vesting/interest period reset drops or re-leaks prior unvested amount",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "vesting interest not reset",
+            "updateTotalAssets",
+            "streamed interest carry-over"
+          ]
+        },
+        {
+          "id": "VLT-07",
+          "name": "Vault incompatible with fee-on-transfer / rebasing / slashing-capable underlying",
+          "severity_seen": [
+            "Low",
+            "Medium"
+          ],
+          "keywords": [
+            "fee-on-transfer vault",
+            "rebasing underlying",
+            "slashing vault shares"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "04-reentrancy-cei.md",
+      "title": "Reentrancy & checks-effects-interactions violations",
+      "patterns": [
+        {
+          "id": "REN-01",
+          "name": "State written after external call/transfer (CEI violated)",
+          "severity_seen": [
+            "Low",
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "CEI pattern",
+            "state update after transfer",
+            "delete after call",
+            "checks effects interactions"
+          ]
+        },
+        {
+          "id": "REN-02",
+          "name": "Flash-loan / callback caller identity not validated",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "flash loan callback",
+            "onFlashLoan caller check",
+            "callback caller not market",
+            "called directly"
+          ]
+        },
+        {
+          "id": "REN-03",
+          "name": "Reentrant call during unlock/withdraw drains beyond entitlement",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "reentrancy drain",
+            "executeFailedWithUpdatedArgs",
+            "allowedCaller reenter",
+            "double withdrawal"
+          ]
+        },
+        {
+          "id": "REN-04",
+          "name": "Missing nonReentrant on a state-critical entry point",
+          "severity_seen": [
+            "Low",
+            "Medium"
+          ],
+          "keywords": [
+            "missing nonReentrant",
+            "reentrancy guard absent"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "05-access-control-init.md",
+      "title": "Access control, initialization & privilege escalation",
+      "patterns": [
+        {
+          "id": "ACC-01",
+          "name": "Frontrunnable initialize() on proxy/implementation",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "initialize frontrun",
+            "separate initializer call",
+            "implementation not locked",
+            "front-run initialization"
+          ]
+        },
+        {
+          "id": "ACC-02",
+          "name": "Missing _disableInitializers() in constructor",
+          "severity_seen": [
+            "Low",
+            "Medium",
+            "epidemic"
+          ],
+          "keywords": [
+            "disableInitializers",
+            "implementation contract initializable",
+            "UUPS lock implementation"
+          ]
+        },
+        {
+          "id": "ACC-03",
+          "name": "Sensitive function missing caller authorization entirely",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "missing access control",
+            "anyone can burn",
+            "anyone can call",
+            "no onlyX modifier",
+            "payWithERC20 drain"
+          ]
+        },
+        {
+          "id": "ACC-04",
+          "name": "Counterfactual / precomputed contract address takeover before deployment",
+          "severity_seen": [
+            "High"
+          ],
+          "keywords": [
+            "counterfactual wallet",
+            "precompute address",
+            "claim address before deploy"
+          ]
+        },
+        {
+          "id": "ACC-05",
+          "name": "Admin can silently override an economic invariant outside timelock",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "bypasses timelock",
+            "update before interval elapses",
+            "admin overrides multiplier",
+            "instant effect parameter change"
+          ]
+        },
+        {
+          "id": "ACC-06",
+          "name": "Existence check performed where an ownership/authorization check was required",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "_requireOwned",
+            "existence check not ownership",
+            "checks token exists not caller owns",
+            "wrong check ownership vs existence",
+            "split burns wrong token"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "06-signatures-replay.md",
+      "title": "Signatures, replay & EIP-712 gaps",
+      "patterns": [
+        {
+          "id": "SIG-01",
+          "name": "Signed digest omits economically relevant parameters",
+          "severity_seen": [
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "signature missing parameter",
+            "not signed",
+            "digest excludes field",
+            "coupled with malicious parameter"
+          ]
+        },
+        {
+          "id": "SIG-02",
+          "name": "Missing nonce / replay protection on a signed action",
+          "severity_seen": [
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "replay attack",
+            "no nonce",
+            "signature reused",
+            "validator signature replay"
+          ]
+        },
+        {
+          "id": "SIG-03",
+          "name": "Signature malleability not rejected",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "signature malleable",
+            "s value not bounded",
+            "ecrecover malleability"
+          ]
+        },
+        {
+          "id": "SIG-04",
+          "name": "ecrecover(0) / zero-address signer not rejected",
+          "severity_seen": [
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "ecrecover returns zero",
+            "any signature valid",
+            "unset issuer address"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "07-rounding-precision.md",
+      "title": "Rounding, precision & decimals",
+      "patterns": [
+        {
+          "id": "RND-01",
+          "name": "Rounding direction favors the caller and is abusable via repeated small operations",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "round down units",
+            "abuse by unstaking many times",
+            "scaled balance drain",
+            "repeated small withdrawals"
+          ]
+        },
+        {
+          "id": "RND-02",
+          "name": "Division before multiplication causes avoidable precision loss",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "divides before multiplying",
+            "precision loss order of operations"
+          ]
+        },
+        {
+          "id": "RND-03",
+          "name": "Decimal mismatch between wrapped/native representations of the same asset",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "8 decimals vs 18 decimals",
+            "WBTC vs wrapped WBTC",
+            "decimal conversion bug"
+          ]
+        },
+        {
+          "id": "RND-04",
+          "name": "Integer truncation permanently strands dust/rewards",
+          "severity_seen": [
+            "Medium",
+            "Low"
+          ],
+          "keywords": [
+            "truncated remainder",
+            "dust locked forever",
+            "total / period truncation"
+          ]
+        },
+        {
+          "id": "RND-05",
+          "name": "Hardcoded 1e18 scaling regardless of actual token decimals",
+          "severity_seen": [
+            "Low"
+          ],
+          "keywords": [
+            "hardcoded 1e18",
+            "ignores token decimals"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "08-token-integration.md",
+      "title": "Non-standard token integration assumptions",
+      "patterns": [
+        {
+          "id": "TOK-01",
+          "name": "Fee-on-transfer / deflationary token breaks internal accounting",
+          "severity_seen": [
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "fee on transfer",
+            "received less than sent",
+            "deflationary token"
+          ]
+        },
+        {
+          "id": "TOK-02",
+          "name": "Rebasing or slashing-capable token/vault share breaks 1:1 assumption",
+          "severity_seen": [
+            "Low",
+            "Medium"
+          ],
+          "keywords": [
+            "rebasing token",
+            "slashing shares",
+            "balance changes without transfer"
+          ]
+        },
+        {
+          "id": "TOK-03",
+          "name": "Blacklistable / pausable stablecoin reverts and blocks a shared code path",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "USDT blacklist",
+            "USDC blacklist",
+            "isBlacklisted revert",
+            "paused token blocks liquidation"
+          ]
+        },
+        {
+          "id": "TOK-04",
+          "name": "approve()/transfer() used instead of SafeERC20, or wrong token approved",
+          "severity_seen": [
+            "Low",
+            "Medium"
+          ],
+          "keywords": [
+            "missing safeApprove",
+            "non-bool-returning token",
+            "approved wrong token",
+            "forceApprove"
+          ]
+        },
+        {
+          "id": "TOK-05",
+          "name": "Wrong wrapped-native-token address assumed across chains",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "WETH hardcoded",
+            "WPOL vs WETH",
+            "wrong native wrapper per chain"
+          ]
+        },
+        {
+          "id": "TOK-06",
+          "name": "address.transfer()/.send() 2300-gas stipend breaks on smart-contract recipients",
+          "severity_seen": [
+            "Low",
+            "epidemic"
+          ],
+          "keywords": [
+            "address.transfer",
+            "2300 gas",
+            "use call instead of transfer"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "09-dos-griefing.md",
+      "title": "Denial of service, griefing & unbounded loops",
+      "patterns": [
+        {
+          "id": "DOS-01",
+          "name": "Permissionless action grows an array without bound, later loop OOGs",
+          "severity_seen": [
+            "High",
+            "Critical"
+          ],
+          "keywords": [
+            "unbounded array",
+            "OOG loop",
+            "lockup element per deposit",
+            "spam array growth"
+          ]
+        },
+        {
+          "id": "DOS-02",
+          "name": "Anyone can spam a queue/request list to grief legitimate users",
+          "severity_seen": [
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "spam withdrawal requests",
+            "griefing queue",
+            "many small requests"
+          ]
+        },
+        {
+          "id": "DOS-03",
+          "name": "1-wei / low-cost front-run forces a legitimate call to revert",
+          "severity_seen": [
+            "High"
+          ],
+          "keywords": [
+            "frontrun with 1 wei",
+            "avoid liquidation by frontrunning",
+            "griefing revert"
+          ]
+        },
+        {
+          "id": "DOS-04",
+          "name": "Full historical array/period iterated with no pagination",
+          "severity_seen": [
+            "Low",
+            "Medium"
+          ],
+          "keywords": [
+            "iterates all periods",
+            "getAllValues no pagination",
+            "loop since first epoch"
+          ]
+        },
+        {
+          "id": "DOS-05",
+          "name": "Batch settlement/finalize function has no batch-size limit",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "finalize unbounded",
+            "no batch argument",
+            "distribute rewards all at once"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "10-cross-chain-bridging.md",
+      "title": "Cross-chain, bridging & message-passing",
+      "patterns": [
+        {
+          "id": "XCH-01",
+          "name": "Chain-fork replay because chainid is baked into an id/hash",
+          "severity_seen": [
+            "Low",
+            "design-note"
+          ],
+          "keywords": [
+            "chain fork",
+            "chainid in id computation",
+            "obligation unreachable after fork"
+          ]
+        },
+        {
+          "id": "XCH-02",
+          "name": "Caller-supplied cross-chain message args can permanently lock the counterpart",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "wrong CCIP input",
+            "propagateRaffleWinner",
+            "cross-chain args lock prize"
+          ]
+        },
+        {
+          "id": "XCH-03",
+          "name": "Non-atomic cross-chain updates overwrite or desync shared global state",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "omniChainData desync",
+            "global state overwritten",
+            "two chains inconsistent",
+            "non-atomic bridge update"
+          ]
+        },
+        {
+          "id": "XCH-04",
+          "name": "Cross-chain fee/gas assumed symmetric between chains",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "fee charged twice",
+            "assumes same fee both chains"
+          ]
+        },
+        {
+          "id": "XCH-05",
+          "name": "Smart-contract wallet address differs across chains, bridged asset sent to wrong owner",
+          "severity_seen": [
+            "High"
+          ],
+          "keywords": [
+            "same address assumption",
+            "counterfactual address differs per chain",
+            "lost nft cross chain"
+          ]
+        },
+        {
+          "id": "XCH-06",
+          "name": "Missing minimum-gas / adapter-param validation lets caller brick the message channel",
+          "severity_seen": [
+            "High"
+          ],
+          "keywords": [
+            "insufficient gas limit LayerZero",
+            "block channel",
+            "adapterParams not validated"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "11-liquidations-collateral.md",
+      "title": "Liquidations & collateral / CDP accounting",
+      "patterns": [
+        {
+          "id": "LIQ-01",
+          "name": "Liquidation math ignores bonus/fee, so target health is missed",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "maxLiquidatable ignores bonus",
+            "target health inaccurate",
+            "liquidation bonus not modeled"
+          ]
+        },
+        {
+          "id": "LIQ-02",
+          "name": "Seized collateral or liquidation proceeds routed to the wrong party",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "collateral sent to lender not liquidator",
+            "liquidation incentive misrouted"
+          ]
+        },
+        {
+          "id": "LIQ-03",
+          "name": "Bad debt is never socialized/cleared and silently accrues",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "bad debt not handled",
+            "insolvency risk unaddressed",
+            "no bad debt clearing path"
+          ]
+        },
+        {
+          "id": "LIQ-04",
+          "name": "Trader/borrower can indefinitely delay liquidation by refreshing a timeout",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "SL timeout refresh avoids liquidation",
+            "reset timer prevents liquidation"
+          ]
+        },
+        {
+          "id": "LIQ-05",
+          "name": "Worst-of price selection logic (spot vs TWAP) is inverted, picking the better price for the borrower",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "picks best price instead of worst",
+            "spot vs twap inverted",
+            "discount via wrong price selection"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "12-governance-staking-rewards.md",
+      "title": "Governance, staking & rewards accounting",
+      "patterns": [
+        {
+          "id": "GOV-01",
+          "name": "Changing reward rate/duration mid-stream leaks or strands rewards",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "notifyRewardAmount precision",
+            "reward duration change griefed",
+            "leftover reward stuck"
+          ]
+        },
+        {
+          "id": "GOV-02",
+          "name": "Auto-voter / delegate can alter a choice after the snapshot window closes",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "vote after epoch end",
+            "auto-vote choice changed post snapshot",
+            "finalize window manipulation"
+          ]
+        },
+        {
+          "id": "GOV-03",
+          "name": "Vote-power or delegation formula can be reused/abused for outsized reward",
+          "severity_seen": [
+            "Critical",
+            "Medium"
+          ],
+          "keywords": [
+            "infinite votes via delegation",
+            "reward formula unfair to small holders"
+          ]
+        },
+        {
+          "id": "GOV-04",
+          "name": "Points/claim signature can be front-run by a batch keeper call, stealing attribution",
+          "severity_seen": [
+            "Medium"
+          ],
+          "keywords": [
+            "claim frontrun by keeper",
+            "batchUpdateUserUnits frontrun"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "13-centralization-trust.md",
+      "title": "Centralization & trust assumptions (report even when 'working as coded')",
+      "patterns": [
+        {
+          "id": "TRU-01",
+          "name": "Admin can redirect fee/reward recipient for existing, already-earned positions",
+          "severity_seen": [
+            "informational/trust"
+          ],
+          "keywords": [
+            "admin redirect fee recipient",
+            "setRewardRecipient",
+            "existing position reassigned"
+          ]
+        },
+        {
+          "id": "TRU-02",
+          "name": "renounceOwnership() left enabled where it would brick the protocol",
+          "severity_seen": [
+            "informational/trust"
+          ],
+          "keywords": [
+            "renounceOwnership foot-gun",
+            "disable renouncing"
+          ]
+        },
+        {
+          "id": "TRU-03",
+          "name": "Single-step ownership/config transfer with no timelock on economically critical params",
+          "severity_seen": [
+            "Low",
+            "informational/trust"
+          ],
+          "keywords": [
+            "single step ownership transfer",
+            "no timelock on fee change",
+            "Ownable2Step preferred"
+          ]
+        },
+        {
+          "id": "TRU-04",
+          "name": "Pending user transaction is not bound to the config/price the user reviewed",
+          "severity_seen": [
+            "Low",
+            "design-note"
+          ],
+          "keywords": [
+            "mutable config after user signs",
+            "no expectedConfigHash",
+            "no deadline parameter"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "14-recurring-code-smells.md",
+      "title": "High-frequency low-severity patterns worth grepping for first (deduplicated)",
+      "patterns": [
+        {
+          "id": "SMELL-01",
+          "name": "Missing _disableInitializers() on upgradeable implementation contracts",
+          "severity_seen": [
+            "Low-Med, very frequent"
+          ],
+          "keywords": [
+            "disableInitializers"
+          ]
+        },
+        {
+          "id": "SMELL-02",
+          "name": "Ownable used instead of Ownable2Step for critical roles",
+          "severity_seen": [
+            "Low, very frequent"
+          ],
+          "keywords": [
+            "Ownable2Step",
+            "single step owner transfer"
+          ]
+        },
+        {
+          "id": "SMELL-03",
+          "name": "address.transfer()/.send() instead of .call{value}('')",
+          "severity_seen": [
+            "Low, very frequent"
+          ],
+          "keywords": [
+            "address.transfer",
+            "2300 gas stipend"
+          ]
+        },
+        {
+          "id": "SMELL-04",
+          "name": "approve() instead of safeApprove()/forceApprove(), or missing SafeERC20",
+          "severity_seen": [
+            "Low-Med, frequent"
+          ],
+          "keywords": [
+            "safeApprove",
+            "forceApprove",
+            "SafeERC20 missing"
+          ]
+        },
+        {
+          "id": "SMELL-05",
+          "name": "CEI ordering violated with no practical reentrancy path (defense-in-depth finding)",
+          "severity_seen": [
+            "Low, frequent"
+          ],
+          "keywords": [
+            "checks effects interactions",
+            "state after external call, no reentrancy guard needed but still flagged"
+          ]
+        },
+        {
+          "id": "SMELL-06",
+          "name": "Missing events on state-changing admin functions",
+          "severity_seen": [
+            "Informational, very frequent"
+          ],
+          "keywords": [
+            "missing event",
+            "state change not emitted"
+          ]
+        },
+        {
+          "id": "SMELL-07",
+          "name": "Zero-address / zero-value checks missing on constructor or setter",
+          "severity_seen": [
+            "Low, frequent"
+          ],
+          "keywords": [
+            "missing zero address check",
+            "address(0) not validated"
+          ]
+        },
+        {
+          "id": "SMELL-08",
+          "name": "Storage variable read repeatedly instead of cached in memory (gas, not security)",
+          "severity_seen": [
+            "Gas, very frequent"
+          ],
+          "keywords": [
+            "cache storage variable",
+            "repeated SLOAD"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "15-accounting-state-desync.md",
+      "title": "Accounting state desynchronization (two variables that must stay in sync)",
+      "patterns": [
+        {
+          "id": "ACD-01",
+          "name": "Phantom yield/balance via decrement-before-transfer (or otherwise premature) state update",
+          "severity_seen": [
+            "Critical",
+            "Medium"
+          ],
+          "keywords": [
+            "totalSupply decremented before transfer",
+            "phantom yield",
+            "startUnstake",
+            "balanceOf minus totalSupply",
+            "premature decrement"
+          ]
+        },
+        {
+          "id": "ACD-02",
+          "name": "Fast-path early return skips state updates the slow path performs",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "early return skips state update",
+            "fast path",
+            "return before updating",
+            "claimRedemption early return"
+          ]
+        },
+        {
+          "id": "ACD-03",
+          "name": "Dependent value calculated before the state it depends on is updated (wrong order)",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "shares calculated before deposit",
+            "wrong order update",
+            "totalAssets updated after shares",
+            "exchange rate stale at calculation time"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "16-boundary-conditions-off-by-one.md",
+      "title": "Off-by-one and boundary-condition errors",
+      "patterns": [
+        {
+          "id": "BND-01",
+          "name": "Strict vs. inclusive comparison at a period/epoch boundary",
+          "severity_seen": [
+            "High",
+            "Critical"
+          ],
+          "keywords": [
+            "off by one epoch",
+            "period boundary >  vs >=",
+            "endPeriod nextClaimablePeriod",
+            "exited exact end of period"
+          ]
+        },
+        {
+          "id": "BND-02",
+          "name": "Ambiguous exact-deadline behavior for a time-lock",
+          "severity_seen": [
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "block.timestamp == deadline",
+            "exact deadline lock or unlock",
+            "boundary timestamp comparison"
+          ]
+        },
+        {
+          "id": "BND-03",
+          "name": "Loop break / array-index off-by-one",
+          "severity_seen": [
+            "Low",
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "i <= array.length",
+            "loop break off by one",
+            "array index out of bounds boundary"
+          ]
+        },
+        {
+          "id": "BND-04",
+          "name": "Amount/balance boundary mishandled at exact full withdrawal or zero-output edge",
+          "severity_seen": [
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "exact full withdrawal boundary",
+            "amount equals balance edge case",
+            "rounds to zero output that should be nonzero"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "17-incomplete-code-paths.md",
+      "title": "Incomplete code paths (a sibling function doesn't mirror what its counterpart does)",
+      "patterns": [
+        {
+          "id": "INC-01",
+          "name": "Function-family comparison test as a detection method",
+          "severity_seen": [
+            "methodology"
+          ],
+          "keywords": [
+            "function family comparison test",
+            "sibling function state reversal",
+            "does B reverse what A did"
+          ]
+        },
+        {
+          "id": "INC-02",
+          "name": "Update/cancel function missing the refund its paired create/deposit function implies",
+          "severity_seen": [
+            "High"
+          ],
+          "keywords": [
+            "update_order no refund",
+            "price decrease not refunded",
+            "tokens stuck no recovery path"
+          ]
+        },
+        {
+          "id": "INC-03",
+          "name": "An alternate entry point bypasses validation the primary entry point performs",
+          "severity_seen": [
+            "Critical",
+            "High"
+          ],
+          "keywords": [
+            "mint bypasses deposit validation",
+            "alternate entrypoint missing check",
+            "convertToAssets mint skips _deposit"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "18-already-mitigated-signatures.md",
+      "title": "Ready checklist for Step 5 positive controls (verify-and-close signatures)",
+      "patterns": [
+        {
+          "id": "MIT-01",
+          "name": "Reentrancy closed: nonReentrant on every external-facing value-moving function",
+          "severity_seen": [
+            "verification-checklist"
+          ],
+          "keywords": [
+            "nonReentrant on all functions",
+            "reentrancy mitigated checklist"
+          ]
+        },
+        {
+          "id": "MIT-02",
+          "name": "Oracle closed: staleness check AND circuit breaker AND multi-source agreement all present",
+          "severity_seen": [
+            "verification-checklist"
+          ],
+          "keywords": [
+            "staleness check circuit breaker multi source",
+            "oracle well hardened checklist"
+          ]
+        },
+        {
+          "id": "MIT-03",
+          "name": "Proxy closed: _disableInitializers() present in every implementation constructor",
+          "severity_seen": [
+            "verification-checklist"
+          ],
+          "keywords": [
+            "disableInitializers present verified",
+            "uninitialized proxy path closed"
+          ]
+        },
+        {
+          "id": "MIT-04",
+          "name": "Signature closed: nonce + chainId + contract address all bound into the signed hash",
+          "severity_seen": [
+            "verification-checklist"
+          ],
+          "keywords": [
+            "nonce chainid contract address in hash",
+            "replay not possible verified"
+          ]
+        },
+        {
+          "id": "MIT-05",
+          "name": "ERC4626 first-depositor attack closed: virtual shares / decimals offset present",
+          "severity_seen": [
+            "verification-checklist"
+          ],
+          "keywords": [
+            "decimalsOffset virtual shares present",
+            "inflation attack mitigated"
+          ]
+        },
+        {
+          "id": "MIT-06",
+          "name": "Governance centralization noted but may be program-out-of-scope, not technically absent",
+          "severity_seen": [
+            "policy-note"
+          ],
+          "keywords": [
+            "multisig signers timelock out of scope",
+            "centralization risk policy",
+            "admin malice out of scope"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "19-token-rugpull-signatures.md",
+      "title": "Token / meme-coin rug-pull detection patterns (EVM + Solana)",
+      "patterns": [
+        {
+          "id": "RUG-01",
+          "name": "Hidden mint / unlimited supply retained post-launch",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "hidden mint function",
+            "unlimited supply",
+            "mint authority not null",
+            "deployer mints and dumps"
+          ]
+        },
+        {
+          "id": "RUG-02",
+          "name": "Honeypot / asymmetric transfer restriction (buy works, sell blocked)",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "honeypot",
+            "sell blocked buy works",
+            "blacklist bots maxTxAmount",
+            "freeze authority Solana"
+          ]
+        },
+        {
+          "id": "RUG-03",
+          "name": "Fee manipulation \u2014 sell fee raised sharply after initial buys",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "setSellFee",
+            "fee raised to 99 percent",
+            "tax fee manipulation post launch"
+          ]
+        },
+        {
+          "id": "RUG-04",
+          "name": "Liquidity pool drain via migration/removal/pair-reset function",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "migrateLP",
+            "emergencyWithdraw liquidity",
+            "setPair setRouter",
+            "LP not locked or burned"
+          ]
+        },
+        {
+          "id": "RUG-05",
+          "name": "Bonding curve parameters or graduation not immutable/permissionless",
+          "severity_seen": [
+            "High",
+            "Critical"
+          ],
+          "keywords": [
+            "bonding curve mutable parameters",
+            "graduation not permissionless",
+            "virtualReserve setCurve"
+          ]
+        },
+        {
+          "id": "RUG-06",
+          "name": "Solana authority retention (mint / freeze / update / close / transfer-hook / permanent-delegate)",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "mint_authority freeze_authority not null",
+            "permanent delegate extension",
+            "transfer hook mutable authority",
+            "Token-2022 extension danger"
+          ]
+        },
+        {
+          "id": "RUG-07",
+          "name": "Fake renounce \u2014 ownership appears renounced but a backdoor role/shadow-admin remains",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "renounceOwnership overridden",
+            "shadow admin backup owner",
+            "fake renounce hidden ownership"
+          ]
+        },
+        {
+          "id": "RUG-08",
+          "name": "Contract designed to be maximally sandwichable (zero slippage protection by construction)",
+          "severity_seen": [
+            "Medium",
+            "High"
+          ],
+          "keywords": [
+            "zero slippage protection swap",
+            "mandatory pool rebase sandwich",
+            "auto swap no slippage bound"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "20-emerging-2025-2026-patterns.md",
+      "title": "Emerging 2025-2026 protocol-level patterns (Pectra EVM features, account abstraction)",
+      "patterns": [
+        {
+          "id": "EMG-01",
+          "name": "EIP-1153 transient storage read goes stale across an external call",
+          "severity_seen": [
+            "High",
+            "Critical"
+          ],
+          "keywords": [
+            "tstore",
+            "tload",
+            "transient storage reentrancy",
+            "EIP-1153"
+          ]
+        },
+        {
+          "id": "EMG-02",
+          "name": "EIP-7702 EOA delegation authorization replay",
+          "severity_seen": [
+            "Critical"
+          ],
+          "keywords": [
+            "EIP-7702",
+            "setCode delegation",
+            "EOA delegation replay",
+            "DELEGATION_MAGIC"
+          ]
+        },
+        {
+          "id": "EMG-03",
+          "name": "ERC-4337 paymaster missing sender allowlist / spending cap",
+          "severity_seen": [
+            "High",
+            "Critical"
+          ],
+          "keywords": [
+            "validatePaymasterUserOp",
+            "paymaster drained",
+            "bundler griefing",
+            "ERC-4337 abuse"
+          ]
+        },
+        {
+          "id": "EMG-04",
+          "name": "LST/LRT integration assumes 1:1 peg under loss/slashing conditions",
+          "severity_seen": [
+            "High",
+            "Critical"
+          ],
+          "keywords": [
+            "stETH wstETH depeg",
+            "LST LRT peg assumption",
+            "liquid staking token liquidation break"
+          ]
+        }
+      ]
+    }
+  ]
+}
